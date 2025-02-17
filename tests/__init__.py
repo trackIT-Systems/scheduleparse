@@ -78,6 +78,19 @@ class TestScheduleEntry(unittest.TestCase):
         tomorrow = datetime.datetime(2025, 2, 18, 12, 0, 0, tzinfo=datetime.UTC)
         self.assertFalse(se.active(tomorrow))
 
+    def test_skip_offset(self):
+        se = ScheduleEntry("bidaily", "00:00", "24:00", skip_days=1, skip_offset=1, tz=datetime.UTC)
+
+        now = datetime.datetime(2025, 2, 17, 12, 0, 0, tzinfo=datetime.UTC)
+        self.assertFalse(se.active(now))
+        self.assertEqual(se.prev_start(now), datetime.datetime.fromisoformat("2025-02-16 00:00:00+00:00"))
+        self.assertEqual(se.prev_stop(now), datetime.datetime.fromisoformat("2025-02-17 00:00:00+00:00"))
+        self.assertEqual(se.next_start(now), datetime.datetime.fromisoformat("2025-02-18 00:00:00+00:00"))
+        self.assertEqual(se.next_stop(now), datetime.datetime.fromisoformat("2025-02-19 00:00:00+00:00"))
+
+        tomorrow = datetime.datetime(2025, 2, 18, 12, 0, 0, tzinfo=datetime.UTC)
+        self.assertTrue(se.active(tomorrow))
+
     def test_repr(self):
         se = ScheduleEntry("bidaily", "00:00", "24:00")
         se_repr = str(se)

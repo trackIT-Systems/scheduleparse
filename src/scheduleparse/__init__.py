@@ -17,6 +17,7 @@ class ScheduleEntry:
         location: astral.LocationInfo | None = None,
         tz: datetime.tzinfo | None = None,
         skip_days: int = 0,
+        skip_offset: int = 0,
     ):
         # get local timezone
         if not tz:
@@ -29,6 +30,7 @@ class ScheduleEntry:
         self._tz = tz
         self._location = location
         self._skip_days = skip_days
+        self._skip_offset = skip_offset
 
     def prev_start(self, now: datetime.datetime | None = None) -> datetime.datetime:
         """returns the timestamp of the schedule's previous run's start"""
@@ -100,7 +102,7 @@ class ScheduleEntry:
             ts = ref_ts + offset
 
         # evaluate parsed timestamp
-        days_mod = date.timetuple().tm_yday % (skip_days + 1)
+        days_mod = (date.timetuple().tm_yday + self._skip_offset) % (skip_days + 1)
         if forward:
             if days_mod:
                 # if this is not a day to be executed on, recurse with day+1
