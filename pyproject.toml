@@ -1,6 +1,6 @@
 [project]
 name = "scheduleparse"
-version = "0.1.0"
+version = "2025.2.1"
 description = "Parse job schedules based on relative start and stop times"
 authors = [
     {name = "Jonas Höchst", email = "hoechst@trackit.systems"},

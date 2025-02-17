@@ -1,9 +1,12 @@
 import datetime
+import importlib.metadata
 import logging
 
 import astral
 import astral.sun
 import pytimeparse
+
+__version__ = importlib.metadata.version(__name__)
 
 logger = logging.getLogger(__name__)
 
