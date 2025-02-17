@@ -14,11 +14,14 @@ class ScheduleEntry:
         name: str,
         start: str,
         stop: str,
-        location: astral.LocationInfo | None,
-        tz: datetime.tzinfo,
+        location: astral.LocationInfo | None = None,
+        tz: datetime.tzinfo | None = None,
         skip_days: int = 0,
-        **kwargs,
     ):
+        # get local timezone
+        if not tz:
+            tz = datetime.datetime.now().astimezone().tzinfo
+
         # schedule attributes
         self.name = name
         self._start = start
@@ -27,17 +30,12 @@ class ScheduleEntry:
         self._location = location
         self._skip_days = skip_days
 
-        # test if schedule can be evaluated
-        logger.debug(
-            "Schedule '%s' loaded, prev_start: %s, next_start: %s", self.name, self.prev_start(), self.next_start()
-        )
-
     def prev_start(self, now: datetime.datetime | None = None) -> datetime.datetime:
-        """returns the timestamp of the schedule's previous start"""
+        """returns the timestamp of the schedule's previous run's start"""
         return self.parse_timing(self._start, forward=False, now=now, skip_days=self._skip_days)
 
     def prev_stop(self, now: datetime.datetime | None = None) -> datetime.datetime:
-        """returns the timestamp of the schedule's previous stop
+        """returns the timestamp of the schedule's previous run's stop
 
         timestamp may be in the future, as the schedule may still be running
         """
@@ -50,11 +48,11 @@ class ScheduleEntry:
         return prev_start_stop
 
     def next_start(self, now: datetime.datetime | None = None) -> datetime.datetime:
-        """returns the timestamp of the schedule's next start"""
+        """returns the timestamp of the schedule's next run's start"""
         return self.parse_timing(self._start, now=now, skip_days=self._skip_days)
 
     def next_stop(self, now: datetime.datetime | None = None) -> datetime.datetime:
-        """returns the timestamp of the schedule's next stop"""
+        """returns the timestamp of the schedule's next run's stop"""
         now = now or datetime.datetime.now(tz=self._tz)
 
         next_start: datetime.datetime = self.next_start(now)
@@ -65,7 +63,7 @@ class ScheduleEntry:
     def active(self, now: datetime.datetime | None = None) -> bool:
         now = now or datetime.datetime.now(tz=self._tz)
 
-        # active if stop of previous start is in the future
+        # active if stop of previous run's stop is in the future
         return self.prev_stop(now) > now
 
     def parse_timing(
@@ -107,7 +105,7 @@ class ScheduleEntry:
             if days_mod:
                 # if this is not a day to be executed on, recurse with day+1
                 return self.parse_timing(time_str, day + 1, forward=forward, now=now, skip_days=skip_days)
-            elif ts <= now:
+            elif ts < now:
                 # if timestamp is in the past or now, recurse with day+1
                 return self.parse_timing(time_str, day + 1, forward=forward, now=now, skip_days=skip_days)
             else:

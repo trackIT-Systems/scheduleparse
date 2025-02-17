@@ -20,3 +20,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.pdm]
 distribution = true
+
+[dependency-groups]
+dev = [
+    "coverage>=7.6.12",
+]
