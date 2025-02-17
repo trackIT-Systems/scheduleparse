@@ -1,4 +1,5 @@
 import datetime
+import sys
 import zoneinfo
 
 import astral
@@ -96,6 +97,24 @@ def test_skip_offset():
 
     tomorrow = datetime.datetime(2025, 2, 18, 12, 0, 0, tzinfo=datetime.UTC)
     assert se.active(tomorrow)
+
+
+def test_skip_offset3():
+    se0 = ScheduleEntry("fourdaily-0", "00:00", "24:00", skip_days=3, skip_offset=0, tz=datetime.UTC)
+    se1 = ScheduleEntry("fourdaily-1", "00:00", "24:00", skip_days=3, skip_offset=1, tz=datetime.UTC)
+    se2 = ScheduleEntry("fourdaily-2", "00:00", "24:00", skip_days=3, skip_offset=2, tz=datetime.UTC)
+    se3 = ScheduleEntry("fourdaily-2", "00:00", "24:00", skip_days=3, skip_offset=3, tz=datetime.UTC)
+
+    now = datetime.datetime(2025, 2, 17, 12, 0, 0, tzinfo=datetime.UTC)
+    assert se0.active(now)
+    assert not se1.active(now)
+    assert not se2.active(now)
+    assert not se3.active(now)
+
+    assert se0.next_start(now) == datetime.datetime.fromisoformat("2025-02-21 00:00:00+00:00")
+    assert se1.next_start(now) == datetime.datetime.fromisoformat("2025-02-18 00:00:00+00:00")
+    assert se2.next_start(now) == datetime.datetime.fromisoformat("2025-02-19 00:00:00+00:00")
+    assert se3.next_start(now) == datetime.datetime.fromisoformat("2025-02-20 00:00:00+00:00")
 
 
 def test_repr():

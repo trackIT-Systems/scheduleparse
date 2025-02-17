@@ -105,7 +105,7 @@ class ScheduleEntry:
             ts = ref_ts + offset
 
         # evaluate parsed timestamp
-        days_mod = (date.timetuple().tm_yday + self._skip_offset) % (skip_days + 1)
+        days_mod = (date.timetuple().tm_yday - self._skip_offset) % (skip_days + 1)
         if forward:
             if days_mod:
                 # if this is not a day to be executed on, recurse with day+1
