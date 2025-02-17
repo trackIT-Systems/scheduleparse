@@ -1,0 +1,22 @@
+[project]
+name = "scheduleparse"
+version = "0.1.0"
+description = "Parse job schedules based on relative start and stop times"
+authors = [
+    {name = "Jonas Höchst", email = "hoechst@trackit.systems"},
+]
+dependencies = [
+    "astral>=3.2", 
+    "pytimeparse>=1.1.8",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.pdm]
+distribution = true
