@@ -29,6 +29,26 @@ pip install scheduleparse
 - `astral>=3.2` (for sunrise/sunset calculations)
 - `pytimeparse>=1.1.8` (for flexible time parsing)
 
+## Testing
+
+To run the tests, first install the development dependencies:
+
+```bash
+pip install pytest
+```
+
+Run all tests:
+
+```bash
+pytest
+```
+
+Run a specific test function:
+
+```bash
+pytest tests/__init__.py::test_fixed
+```
+
 ## Quick Start
 
 ```python
