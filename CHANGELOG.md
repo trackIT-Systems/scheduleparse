@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2026.10.2] - 2026-10-06
+
 ### Fixed
 
 - A bare sun event without an offset (e.g. `sunrise`, `sunset`) resolves to that event. Previously it was read as an unparseable absolute time and silently resolved to midnight; only `sunrise+00:00` worked.
@@ -55,7 +57,8 @@ Initial release.
 - Timezone support via the `tz` argument.
 - Requires Python 3.11 or newer.
 
-[Unreleased]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.1...HEAD
+[Unreleased]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.2...HEAD
+[2026.10.2]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.1...2026.10.2
 [2026.10.1]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.10.1...2026.10.1
 [2025.10.1]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.2.2...2025.10.1
 [2025.2.2]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.2.1...2025.2.2

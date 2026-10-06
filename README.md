@@ -22,13 +22,13 @@ Parse job schedules based on relative start and stop times.
 `scheduleparse` isn't published on PyPI. Install a release from GitHub instead:
 
 ```bash
-pip install git+https://github.com/trackIT-Systems/scheduleparse.git@2026.10.1
+pip install git+https://github.com/trackIT-Systems/scheduleparse.git@2026.10.2
 ```
 
 Each [release](https://github.com/trackIT-Systems/scheduleparse/releases) also has a wheel and a source archive attached, which you can install directly:
 
 ```bash
-pip install https://github.com/trackIT-Systems/scheduleparse/releases/download/2026.10.1/scheduleparse-2026.10.1-py3-none-any.whl
+pip install https://github.com/trackIT-Systems/scheduleparse/releases/download/2026.10.2/scheduleparse-2026.10.2-py3-none-any.whl
 ```
 
 ### Requirements
