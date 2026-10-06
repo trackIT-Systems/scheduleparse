@@ -525,3 +525,30 @@ def test_overnight_relative_time_berlin_15min_intervals():
 
     # We expect at least 2 transitions (inactive->active at sunset+1h, active->inactive at sunrise+30m)
     assert transitions >= 2, f"Expected at least 2 transitions, got {transitions}"
+
+
+def test_now_in_other_timezone():
+    """The calendar day comes from the schedule's timezone, not from `now`'s.
+
+    00:30 in Berlin is 23:30 UTC on the previous day (trackIT-Systems/wittypi4#9).
+    """
+    tz = zoneinfo.ZoneInfo("Europe/Berlin")
+    se = ScheduleEntry("after_midnight", "00:01", "01:00", tz=tz)
+    now = datetime.datetime(2025, 12, 9, 0, 30, tzinfo=tz)
+
+    for n in (now, now.astimezone(datetime.UTC)):
+        assert se.active(n)
+        assert se.prev_start(n) == datetime.datetime(2025, 12, 9, 0, 1, tzinfo=tz)
+        assert se.prev_stop(n) == datetime.datetime(2025, 12, 9, 1, 0, tzinfo=tz)
+        assert se.next_start(n) == datetime.datetime(2025, 12, 10, 0, 1, tzinfo=tz)
+
+
+def test_default_timezone_follows_dst(monkeypatch):
+    """Without an explicit tz the system zone is used, including its DST rules."""
+    monkeypatch.setenv("TZ", "Europe/Berlin")
+    tz = zoneinfo.ZoneInfo("Europe/Berlin")
+    se = ScheduleEntry("evening", "22:00", "23:00")
+
+    for month in (7, 12):
+        now = datetime.datetime(2025, month, 1, 12, 0, tzinfo=datetime.UTC)
+        assert se.next_start(now) == datetime.datetime(2025, month, 1, 22, 0, tzinfo=tz)

@@ -14,6 +14,8 @@ Example:
 import datetime
 import importlib.metadata
 import logging
+import os
+import zoneinfo
 
 import astral
 import astral.sun
@@ -22,6 +24,23 @@ import pytimeparse
 __version__ = importlib.metadata.version(__name__)
 
 logger = logging.getLogger(__name__)
+
+
+def local_tz() -> datetime.tzinfo:
+    """Get the system timezone including its DST rules.
+
+    Uses the TZ environment variable, else /etc/localtime. Falls back to the current
+    fixed UTC offset, which is wrong after the next DST change.
+    """
+    try:
+        key = os.environ.get("TZ", "").lstrip(":")
+        if key:
+            return zoneinfo.ZoneInfo(key)
+        with open("/etc/localtime", "rb") as f:
+            return zoneinfo.ZoneInfo.from_file(f, key="localtime")
+    except (OSError, ValueError, zoneinfo.ZoneInfoNotFoundError):
+        logger.warning("Couldn't determine system timezone, using fixed UTC offset")
+        return datetime.datetime.now().astimezone().tzinfo
 
 
 class ScheduleEntry:
@@ -69,9 +88,8 @@ class ScheduleEntry:
         skip_days: int = 0,
         skip_offset: int = 0,
     ):
-        # get local timezone
         if not tz:
-            tz = datetime.datetime.now().astimezone().tzinfo
+            tz = local_tz()
 
         # schedule attributes
         self.name = name
@@ -235,8 +253,8 @@ class ScheduleEntry:
             This is an internal method primarily used by prev_start(), next_start(),
             prev_stop(), and next_stop(). Direct usage is typically not necessary.
         """
-        # initizalize now with datetime.now() if not set
-        now = now or datetime.datetime.now(tz=self._tz)
+        # take the calendar day in the schedule's timezone, not in now's
+        now = (now or datetime.datetime.now()).astimezone(self._tz)
         date = now.date() + datetime.timedelta(days=day)
 
         if "+" in time_str:
