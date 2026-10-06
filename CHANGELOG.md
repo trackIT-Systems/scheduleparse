@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2026.10.1] - 2026-10-06
+
 ### Fixed
 
 - Schedules are evaluated in the schedule's timezone. Previously the calendar day was taken from `now` in whatever timezone it was passed, so a Berlin schedule like `00:01`–`01:00` checked with a UTC timestamp resolved to the previous day and never became active ([trackIT-Systems/wittypi4#9](https://github.com/trackIT-Systems/wittypi4/issues/9)).
@@ -49,7 +51,8 @@ Initial release.
 - Timezone support via the `tz` argument.
 - Requires Python 3.11 or newer.
 
-[Unreleased]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.10.1...HEAD
+[Unreleased]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.1...HEAD
+[2026.10.1]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.10.1...2026.10.1
 [2025.10.1]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.2.2...2025.10.1
 [2025.2.2]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.2.1...2025.2.2
 [2025.2.1]: https://github.com/trackIT-Systems/scheduleparse/releases/tag/2025.2.1
