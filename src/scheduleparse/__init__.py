@@ -7,7 +7,7 @@ recurring patterns with timezone support.
 Example:
     >>> from scheduleparse import ScheduleEntry
     >>> schedule = ScheduleEntry("daily-job", "09:00", "17:00")
-    >>> schedule.active()  # Check if currently active
+    >>> schedule.active()  # Check if currently active  # doctest: +SKIP
     False
 """
 
@@ -67,7 +67,8 @@ class ScheduleEntry:
     Example:
         >>> # Simple daily schedule from 9 AM to 5 PM
         >>> schedule = ScheduleEntry("work", "09:00", "17:00")
-        >>> schedule.active()
+        >>> schedule.active()  # doctest: +SKIP
+        True
 
         >>> # Sunrise to sunset schedule
         >>> import astral
@@ -117,7 +118,7 @@ class ScheduleEntry:
             >>> schedule = ScheduleEntry("daily", "09:00", "17:00", tz=datetime.UTC)
             >>> now = datetime.datetime(2025, 2, 17, 15, 0, 0, tzinfo=datetime.UTC)
             >>> schedule.prev_start(now)
-            datetime.datetime(2025, 2, 17, 9, 0, 0, tzinfo=datetime.UTC)
+            datetime.datetime(2025, 2, 17, 9, 0, tzinfo=datetime.timezone.utc)
         """
         return self.parse_timing(self._start, forward=False, now=now, skip_days=self._skip_days)
 
@@ -139,7 +140,7 @@ class ScheduleEntry:
             >>> schedule = ScheduleEntry("daily", "09:00", "17:00", tz=datetime.UTC)
             >>> now = datetime.datetime(2025, 2, 17, 15, 0, 0, tzinfo=datetime.UTC)
             >>> schedule.prev_stop(now)
-            datetime.datetime(2025, 2, 17, 17, 0, 0, tzinfo=datetime.UTC)
+            datetime.datetime(2025, 2, 17, 17, 0, tzinfo=datetime.timezone.utc)
         """
         now = now or datetime.datetime.now(tz=self._tz)
 
@@ -166,7 +167,7 @@ class ScheduleEntry:
             >>> schedule = ScheduleEntry("daily", "09:00", "17:00", tz=datetime.UTC)
             >>> now = datetime.datetime(2025, 2, 17, 15, 0, 0, tzinfo=datetime.UTC)
             >>> schedule.next_start(now)
-            datetime.datetime(2025, 2, 18, 9, 0, 0, tzinfo=datetime.UTC)
+            datetime.datetime(2025, 2, 18, 9, 0, tzinfo=datetime.timezone.utc)
         """
         return self.parse_timing(self._start, now=now, skip_days=self._skip_days)
 
@@ -186,7 +187,7 @@ class ScheduleEntry:
             >>> schedule = ScheduleEntry("daily", "09:00", "17:00", tz=datetime.UTC)
             >>> now = datetime.datetime(2025, 2, 17, 15, 0, 0, tzinfo=datetime.UTC)
             >>> schedule.next_stop(now)
-            datetime.datetime(2025, 2, 18, 17, 0, 0, tzinfo=datetime.UTC)
+            datetime.datetime(2025, 2, 18, 17, 0, tzinfo=datetime.timezone.utc)
         """
         now = now or datetime.datetime.now(tz=self._tz)
 

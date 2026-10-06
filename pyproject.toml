@@ -24,4 +24,9 @@ distribution = true
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
+    "pytest-cov>=6.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["src", "tests"]
+addopts = "--doctest-modules --cov=scheduleparse --cov-branch --cov-report=term-missing"
