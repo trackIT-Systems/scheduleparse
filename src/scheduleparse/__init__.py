@@ -25,6 +25,9 @@ __version__ = importlib.metadata.version(__name__)
 
 logger = logging.getLogger(__name__)
 
+# events returned by astral.sun.sun() that can be used as schedule times
+SUN_EVENTS = ("dawn", "sunrise", "noon", "sunset", "dusk")
+
 
 def local_tz() -> datetime.tzinfo:
     """Get the system timezone including its DST rules.
@@ -240,8 +243,8 @@ class ScheduleEntry:
         Args:
             time_str: Time string to parse. Can be:
                 - Absolute time: "HH:MM" or seconds since midnight
-                - Sunrise-based: "sunrise+30m", "sunrise-1h"
-                - Sunset-based: "sunset+30m", "sunset-1h"
+                - Sunrise-based: "sunrise", "sunrise+30m", "sunrise-1h"
+                - Sunset-based: "sunset", "sunset+30m", "sunset-1h"
             day: Day offset from the reference date (0 = reference date).
             forward: If True, search forward in time. If False, search backward.
             now: Reference datetime. Defaults to current time if not provided.
@@ -258,20 +261,14 @@ class ScheduleEntry:
         now = (now or datetime.datetime.now()).astimezone(self._tz)
         date = now.date() + datetime.timedelta(days=day)
 
-        if "+" in time_str:
+        ref, op, dur = time_str.partition("+") if "+" in time_str else time_str.partition("-")
+        if op or ref in SUN_EVENTS:
+            # sun event with optional offset, e.g. "sunrise", "sunset-1h"
             assert self._location
-            ref, op, dur = time_str.partition("+")
             ref_ts = astral.sun.sun(self._location.observer, date=date, tzinfo=self._tz)[ref]
             offset_s = pytimeparse.parse(dur, granularity="minutes") or 0.0
             offset = datetime.timedelta(seconds=offset_s)
-            ts = ref_ts + offset
-        elif "-" in time_str:
-            assert self._location
-            ref, op, dur = time_str.partition("-")
-            ref_ts = astral.sun.sun(self._location.observer, date=date, tzinfo=self._tz)[ref]
-            offset_s = pytimeparse.parse(dur, granularity="minutes") or 0.0
-            offset = datetime.timedelta(seconds=offset_s)
-            ts = ref_ts - offset
+            ts = ref_ts - offset if op == "-" else ref_ts + offset
         else:
             # assume absolute time
             offset_s = pytimeparse.parse(time_str, granularity="minutes") or 0.0

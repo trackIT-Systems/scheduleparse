@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- A bare sun event without an offset (e.g. `sunrise`, `sunset`) resolves to that event. Previously it was read as an unparseable absolute time and silently resolved to midnight; only `sunrise+00:00` worked.
+
 ## [2026.10.1] - 2026-10-06
 
 ### Fixed

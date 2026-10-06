@@ -555,6 +555,7 @@ def test_absolute_formats(time_str, expected):
 @pytest.mark.parametrize(
     "offset_str, offset",
     [
+        ("", datetime.timedelta(0)),
         ("+0m", datetime.timedelta(0)),
         ("+1h30m", datetime.timedelta(hours=1, minutes=30)),
         ("+01:30", datetime.timedelta(hours=1, minutes=30)),
@@ -719,7 +720,7 @@ def test_active_with_naive_now():
 
 
 @pytest.mark.xfail(strict=True, reason="unparseable time strings silently resolve to midnight")
-@pytest.mark.parametrize("time_str", ["garbage", "sunrise", "1:30 pm", "3600"])
+@pytest.mark.parametrize("time_str", ["garbage", "1:30 pm", "3600"])
 def test_unparseable_time_raises(time_str):
     se = ScheduleEntry("bad", time_str, "23:00", location=BERLIN_LOC, tz=datetime.UTC)
     with pytest.raises(ValueError):
