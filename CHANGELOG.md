@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2026.10.3] - 2026-10-17
+
 ### Fixed
 
 - Unparseable time strings (e.g. `3:OO`, `1:30 pm`, `sunrise+bogus`, or the empty string) raise `ValueError` from `next_start()`, `next_stop()`, `prev_start()`, `prev_stop()` and `active()`. Previously they silently resolved to midnight, so a typo in a stop time such as `02:00`–`bogus` turned into a window of almost 22 hours. The bare string `"0"` is no longer accepted either; use `"00:00"`.
@@ -61,7 +63,8 @@ Initial release.
 - Timezone support via the `tz` argument.
 - Requires Python 3.11 or newer.
 
-[Unreleased]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.2...HEAD
+[Unreleased]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.3...HEAD
+[2026.10.3]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.2...2026.10.3
 [2026.10.2]: https://github.com/trackIT-Systems/scheduleparse/compare/2026.10.1...2026.10.2
 [2026.10.1]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.10.1...2026.10.1
 [2025.10.1]: https://github.com/trackIT-Systems/scheduleparse/compare/2025.2.2...2025.10.1
