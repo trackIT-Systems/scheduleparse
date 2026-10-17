@@ -253,6 +253,9 @@ class ScheduleEntry:
         Returns:
             datetime.datetime: The parsed timestamp.
 
+        Raises:
+            ValueError: If `time_str` can't be parsed.
+
         Note:
             This is an internal method primarily used by prev_start(), next_start(),
             prev_stop(), and next_stop(). Direct usage is typically not necessary.
@@ -266,13 +269,11 @@ class ScheduleEntry:
             # sun event with optional offset, e.g. "sunrise", "sunset-1h"
             assert self._location
             ref_ts = astral.sun.sun(self._location.observer, date=date, tzinfo=self._tz)[ref]
-            offset_s = pytimeparse.parse(dur, granularity="minutes") or 0.0
-            offset = datetime.timedelta(seconds=offset_s)
+            offset = datetime.timedelta(seconds=self._parse_offset(dur, time_str) if op else 0)
             ts = ref_ts - offset if op == "-" else ref_ts + offset
         else:
-            # assume absolute time
-            offset_s = pytimeparse.parse(time_str, granularity="minutes") or 0.0
-            offset = datetime.timedelta(seconds=offset_s)
+            # absolute time after midnight
+            offset = datetime.timedelta(seconds=self._parse_offset(time_str, time_str))
             ref_ts = datetime.datetime.combine(date, datetime.time(0, 0, 0), tzinfo=self._tz)
             ts = ref_ts + offset
 
@@ -298,6 +299,19 @@ class ScheduleEntry:
             else:
                 # return timestamp of the past
                 return ts
+
+    @staticmethod
+    def _parse_offset(text: str, time_str: str) -> float:
+        """Parse a duration like "09:00" or "30m" into seconds.
+
+        Raises:
+            ValueError: If `text` isn't a valid duration. pytimeparse returns None for these, which
+                used to be read as 0 and made a typo silently resolve to midnight.
+        """
+        seconds = pytimeparse.parse(text, granularity="minutes")
+        if seconds is None:
+            raise ValueError(f"Invalid time {time_str!r}: expected e.g. '09:00', '9h30m', 'sunrise' or 'sunset-1h'")
+        return seconds
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name={self.name!r}, start={self._start!r}, stop={self._stop!r})"

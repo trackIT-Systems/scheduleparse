@@ -698,6 +698,39 @@ def test_dst_fall_back():
     assert se.prev_stop(noon).astimezone(datetime.UTC) - se.prev_start(noon).astimezone(datetime.UTC) == datetime.timedelta(hours=25)
 
 
+@pytest.mark.parametrize("time_str", ["garbage", "1:30 pm", "3600", "", "sunrise+bogus", "sunrise+"])
+def test_unparseable_time_raises(time_str):
+    se = ScheduleEntry("bad", time_str, "23:00", location=BERLIN_LOC, tz=datetime.UTC)
+    now = datetime.datetime(2025, 2, 17, 12, 0, 0, tzinfo=datetime.UTC)
+    with pytest.raises(ValueError, match="Invalid time"):
+        se.next_start(now)
+    with pytest.raises(ValueError):
+        se.prev_start(now)
+
+
+def test_unparseable_stop_raises():
+    # start is fine, stop is a typo: it must not silently become midnight (a ~22h window)
+    se = ScheduleEntry("bad-stop", "02:00", "3:OO", tz=datetime.UTC)
+    now = datetime.datetime(2025, 2, 17, 12, 0, 0, tzinfo=datetime.UTC)
+    assert se.next_start(now) == datetime.datetime(2025, 2, 18, 2, 0, tzinfo=datetime.UTC)
+    with pytest.raises(ValueError):
+        se.next_stop(now)
+    with pytest.raises(ValueError):
+        se.active(now)
+
+
+@pytest.mark.parametrize("time_str", ["00:00", "0:00", "9:30", "09:00:30", "9h30m", "90m", "24:00"])
+def test_valid_times_still_parse(time_str):
+    se = ScheduleEntry("ok", time_str, "23:59", tz=datetime.UTC)
+    assert se.next_start(datetime.datetime(2025, 2, 17, 0, 0, 1, tzinfo=datetime.UTC))
+
+
+@pytest.mark.parametrize("time_str", ["sunrise", "sunset", "sunrise+30m", "sunset-1h", "dawn+00:00"])
+def test_valid_sun_times_still_parse(time_str):
+    se = ScheduleEntry("ok", time_str, "23:59", location=BERLIN_LOC, tz=datetime.UTC)
+    assert se.next_start(datetime.datetime(2025, 2, 17, 0, 0, 1, tzinfo=datetime.UTC))
+
+
 # Known bugs: these tests describe the desired behavior and fail until it is fixed
 
 
@@ -717,14 +750,6 @@ def test_skip_days_across_new_year():
 def test_active_with_naive_now():
     se = ScheduleEntry("naive", "12:00", "13:00", tz=datetime.UTC)
     assert se.active(datetime.datetime(2025, 2, 17, 12, 30, 0))
-
-
-@pytest.mark.xfail(strict=True, reason="unparseable time strings silently resolve to midnight")
-@pytest.mark.parametrize("time_str", ["garbage", "1:30 pm", "3600"])
-def test_unparseable_time_raises(time_str):
-    se = ScheduleEntry("bad", time_str, "23:00", location=BERLIN_LOC, tz=datetime.UTC)
-    with pytest.raises(ValueError):
-        se.next_start(datetime.datetime(2025, 2, 17, 12, 0, 0, tzinfo=datetime.UTC))
 
 
 @pytest.mark.xfail(strict=True, raises=RecursionError, reason="each skipped day is a recursion level")
